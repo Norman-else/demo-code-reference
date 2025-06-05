@@ -13,7 +13,7 @@ installations are necessary.
 ## Running the Demo
 
 ```bash
-python3 main.py
+python3 -m replenishment.main
 ```
 
 Running the script will create a file `service_level.svg` in the project

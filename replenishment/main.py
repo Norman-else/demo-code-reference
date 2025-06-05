@@ -1,9 +1,9 @@
-from algorithms.naive import NaiveAlgorithm
-from algorithms.moving_average import MovingAverageAlgorithm
-from algorithms.exponential_smoothing import ExponentialSmoothingAlgorithm
-from evaluation import run_simulation
-from plotting import svg_bar_chart
-from simulation import generate_demand
+from .algorithms.naive import NaiveAlgorithm
+from .algorithms.moving_average import MovingAverageAlgorithm
+from .algorithms.exponential_smoothing import ExponentialSmoothingAlgorithm
+from .evaluation import run_simulation
+from .plotting import svg_bar_chart
+from .simulation import generate_demand
 
 
 def main() -> None:

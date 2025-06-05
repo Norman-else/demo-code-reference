@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from algorithms.base import ReplenishmentAlgorithm
+from .algorithms.base import ReplenishmentAlgorithm
 
 def run_simulation(demand: Dict[str, List[int]], algorithms: Dict[str, ReplenishmentAlgorithm], initial_stock: int = 20):
     """Run simulation for each algorithm and return metrics."""
