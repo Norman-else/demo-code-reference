@@ -21,6 +21,8 @@ def train_dnn():
         optimizer.step()
         print(f"DNN Epoch {epoch+1}, loss: {loss.item():.4f}")
 
+    torch.save(model.state_dict(), "dnn_model.pth")
+
 
 def train_gnn():
     features, adj = generate_graph_data(num_nodes=20, feature_dim=8)
@@ -37,6 +39,8 @@ def train_gnn():
         loss.backward()
         optimizer.step()
         print(f"GNN Epoch {epoch+1}, loss: {loss.item():.4f}")
+
+    torch.save(model.state_dict(), "gnn_model.pth")
 
 
 if __name__ == "__main__":

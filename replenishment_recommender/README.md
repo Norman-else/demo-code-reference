@@ -11,12 +11,14 @@ define models, and run a minimal training loop using PyTorch.
 - `requirements.txt` – python dependencies
 
 ## Usage
-Install dependencies and run the training script:
+Install dependencies and run the training and prediction scripts:
 
 ```bash
 pip install -r requirements.txt
-python train.py
+python train.py       # trains and saves DNN and GNN models
+python predict.py     # loads the saved models and prints predictions
 ```
 
-The script generates dummy data and trains the models for a few epochs, then
-prints the training loss.
+`train.py` generates dummy data, trains the models for a few epochs and saves
+the weights to `dnn_model.pth` and `gnn_model.pth`. `predict.py` then loads
+these weights and performs inference on fresh synthetic data.
