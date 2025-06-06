@@ -1,8 +1,8 @@
 # Package Predictor
 
-This directory contains a simple example of training a neural-network-like model
+This directory contains a simple example of training a two-layer neural network
 from a small dataset of product names **and descriptions** to predict package
-size and type. The model is implemented from scratch without external machine
+size and type. The network is implemented from scratch without external machine
 learning libraries.
 
 ## Files

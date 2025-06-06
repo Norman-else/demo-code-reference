@@ -39,34 +39,68 @@ def softmax(logits: List[float]) -> List[float]:
     return [e / s for e in exps]
 
 
-class SimpleClassifier:
-    def __init__(self, input_dim: int, num_classes: int, lr: float = 0.1):
+class SimpleNN:
+    """Minimal two-layer neural network with tanh activation."""
+
+    def __init__(
+        self, input_dim: int, hidden_dim: int, num_classes: int, lr: float = 0.1
+    ):
         self.lr = lr
         self.num_classes = num_classes
-        self.weights = [
+        self.hidden_dim = hidden_dim
+        self.hidden_weights = [
             [random.uniform(-0.01, 0.01) for _ in range(input_dim)]
+            for _ in range(hidden_dim)
+        ]
+        self.hidden_biases = [0.0 for _ in range(hidden_dim)]
+        self.out_weights = [
+            [random.uniform(-0.01, 0.01) for _ in range(hidden_dim)]
             for _ in range(num_classes)
         ]
-        self.biases = [0.0 for _ in range(num_classes)]
+        self.out_biases = [0.0 for _ in range(num_classes)]
 
-    def predict_proba(self, vec: List[float]) -> List[float]:
+    def _forward(self, vec: List[float]) -> Tuple[List[float], List[float]]:
+        hidden = []
+        for j in range(self.hidden_dim):
+            h = self.hidden_biases[j]
+            for i, val in enumerate(vec):
+                h += self.hidden_weights[j][i] * val
+            hidden.append(math.tanh(h))
+
         logits = []
         for c in range(self.num_classes):
-            logit = self.biases[c]
-            for i, val in enumerate(vec):
-                logit += self.weights[c][i] * val
+            logit = self.out_biases[c]
+            for j, h in enumerate(hidden):
+                logit += self.out_weights[c][j] * h
             logits.append(logit)
-        return softmax(logits)
+        return hidden, softmax(logits)
+
+    def predict_proba(self, vec: List[float]) -> List[float]:
+        _, probs = self._forward(vec)
+        return probs
 
     def train(self, X: List[List[float]], y: List[int], epochs: int = 50):
         for _ in range(epochs):
             for vec, label in zip(X, y):
-                probs = self.predict_proba(vec)
+                hidden, probs = self._forward(vec)
+                # Gradient for output layer
+                delta_out = [probs[c] - (1.0 if c == label else 0.0) for c in range(self.num_classes)]
+                # Update output weights and biases
                 for c in range(self.num_classes):
-                    error = (1.0 if c == label else 0.0) - probs[c]
-                    for i, val in enumerate(vec):
-                        self.weights[c][i] += self.lr * error * val
-                    self.biases[c] += self.lr * error
+                    for j in range(self.hidden_dim):
+                        self.out_weights[c][j] -= self.lr * delta_out[c] * hidden[j]
+                    self.out_biases[c] -= self.lr * delta_out[c]
+                # Gradient for hidden layer
+                delta_hidden = [0.0 for _ in range(self.hidden_dim)]
+                for j in range(self.hidden_dim):
+                    dh = 0.0
+                    for c in range(self.num_classes):
+                        dh += self.out_weights[c][j] * delta_out[c]
+                    dh *= 1.0 - hidden[j] ** 2  # derivative of tanh
+                    delta_hidden[j] = dh
+                    for i in range(len(vec)):
+                        self.hidden_weights[j][i] -= self.lr * dh * vec[i]
+                    self.hidden_biases[j] -= self.lr * dh
 
 
 class PackagePredictor:
@@ -74,8 +108,10 @@ class PackagePredictor:
         self.vocab = vocab
         self.size_classes = size_classes
         self.type_classes = type_classes
-        self.size_model = SimpleClassifier(len(vocab.token_to_index), len(size_classes))
-        self.type_model = SimpleClassifier(len(vocab.token_to_index), len(type_classes))
+        input_dim = len(vocab.token_to_index)
+        hidden_dim = max(2, input_dim // 2)
+        self.size_model = SimpleNN(input_dim, hidden_dim, len(size_classes))
+        self.type_model = SimpleNN(input_dim, hidden_dim, len(type_classes))
 
     def train(
         self,
@@ -106,10 +142,14 @@ class PackagePredictor:
             "vocab": self.vocab.token_to_index,
             "size_classes": self.size_classes,
             "type_classes": self.type_classes,
-            "size_weights": self.size_model.weights,
-            "size_biases": self.size_model.biases,
-            "type_weights": self.type_model.weights,
-            "type_biases": self.type_model.biases,
+            "size_hidden_weights": self.size_model.hidden_weights,
+            "size_hidden_biases": self.size_model.hidden_biases,
+            "size_out_weights": self.size_model.out_weights,
+            "size_out_biases": self.size_model.out_biases,
+            "type_hidden_weights": self.type_model.hidden_weights,
+            "type_hidden_biases": self.type_model.hidden_biases,
+            "type_out_weights": self.type_model.out_weights,
+            "type_out_biases": self.type_model.out_biases,
         }
         with open(path, "w") as f:
             json.dump(data, f)
@@ -121,8 +161,12 @@ class PackagePredictor:
         vocab = Vocabulary()
         vocab.token_to_index = data["vocab"]
         predictor = cls(vocab, data["size_classes"], data["type_classes"])
-        predictor.size_model.weights = data["size_weights"]
-        predictor.size_model.biases = data["size_biases"]
-        predictor.type_model.weights = data["type_weights"]
-        predictor.type_model.biases = data["type_biases"]
+        predictor.size_model.hidden_weights = data["size_hidden_weights"]
+        predictor.size_model.hidden_biases = data["size_hidden_biases"]
+        predictor.size_model.out_weights = data["size_out_weights"]
+        predictor.size_model.out_biases = data["size_out_biases"]
+        predictor.type_model.hidden_weights = data["type_hidden_weights"]
+        predictor.type_model.hidden_biases = data["type_hidden_biases"]
+        predictor.type_model.out_weights = data["type_out_weights"]
+        predictor.type_model.out_biases = data["type_out_biases"]
         return predictor
