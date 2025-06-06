@@ -1,19 +1,22 @@
+import csv
+from pathlib import Path
+
 from model import Vocabulary, PackagePredictor
 
 
+def load_data(csv_path: str):
+    """Load training data from a CSV file."""
+    records = []
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            records.append((row["name"], row["size"], row["type"]))
+    return records
+
+
 def main():
-    data = [
-        ("cola", "500ml", "bottle"),
-        ("orange juice", "1l", "bottle"),
-        ("mineral water", "500ml", "bottle"),
-        ("potato chips", "200g", "bag"),
-        ("chocolate cookies", "300g", "bag"),
-        ("rice 5kg", "5kg", "bag"),
-        ("smartphone", "small", "box"),
-        ("laptop computer", "medium", "box"),
-        ("television", "large", "box"),
-        ("breakfast cereal", "500g", "box"),
-    ]
+    # Load data from a CSV file instead of hardcoding it
+    data = load_data(Path(__file__).with_name("data.csv"))
 
     names = [row[0] for row in data]
     sizes = [row[1] for row in data]
