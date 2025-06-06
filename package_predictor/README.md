@@ -3,7 +3,8 @@
 This directory contains a simple example of training a two-layer neural network
 from a small dataset of product names **and descriptions** to predict package
 size and type. The network is implemented from scratch without external machine
-learning libraries.
+learning libraries. The CSV file only provides names and descriptions; the
+training script assigns synthetic size/type labels for demonstration.
 
 ## Files
 
@@ -11,7 +12,7 @@ learning libraries.
 - `train.py` – trains the model using `data.csv`
 - `predict.py` – loads the saved model and predicts for a given product name and
   description
-- `data.csv` – example training data
+- `data.csv` – example training data containing only names and descriptions
 
 ## Usage
 
