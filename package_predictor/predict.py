@@ -3,12 +3,13 @@ from model import PackagePredictor
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python predict.py <product name>")
+    if len(sys.argv) < 3:
+        print("Usage: python predict.py <product name> <description>")
         return
-    name = " ".join(sys.argv[1:])
+    name = sys.argv[1]
+    description = " ".join(sys.argv[2:])
     predictor = PackagePredictor.load("model.json")
-    (size_label, size_conf), (type_label, type_conf) = predictor.predict(name)
+    (size_label, size_conf), (type_label, type_conf) = predictor.predict(name, description)
     print(f"Package size: {size_label} (confidence {size_conf:.2f})")
     print(f"Package type: {type_label} (confidence {type_conf:.2f})")
 

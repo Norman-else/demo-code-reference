@@ -6,24 +6,27 @@ import random
 from typing import List, Tuple, Dict
 
 
-def tokenize(name: str) -> List[str]:
-    """Split product name into words."""
-    return name.lower().split()
+def tokenize(text: str) -> List[str]:
+    """Split a piece of text into lowercase tokens."""
+    return text.lower().split()
 
 
 class Vocabulary:
     def __init__(self):
         self.token_to_index: Dict[str, int] = {}
 
-    def build(self, names: List[str]):
-        for name in names:
-            for token in tokenize(name):
+    def build(self, texts: List[str]):
+        """Build the vocabulary from a list of texts."""
+        for text in texts:
+            for token in tokenize(text):
                 if token not in self.token_to_index:
                     self.token_to_index[token] = len(self.token_to_index)
 
-    def vectorize(self, name: str) -> List[float]:
+    def vectorize(self, name: str, description: str) -> List[float]:
+        """Convert a name/description pair into a vector."""
+        text = f"{name} {description}"
         vec = [0.0] * len(self.token_to_index)
-        for token in tokenize(name):
+        for token in tokenize(text):
             idx = self.token_to_index.get(token)
             if idx is not None:
                 vec[idx] += 1.0
@@ -74,15 +77,21 @@ class PackagePredictor:
         self.size_model = SimpleClassifier(len(vocab.token_to_index), len(size_classes))
         self.type_model = SimpleClassifier(len(vocab.token_to_index), len(type_classes))
 
-    def train(self, names: List[str], size_labels: List[str], type_labels: List[str]):
-        X = [self.vocab.vectorize(name) for name in names]
+    def train(
+        self,
+        names: List[str],
+        descriptions: List[str],
+        size_labels: List[str],
+        type_labels: List[str],
+    ):
+        X = [self.vocab.vectorize(n, d) for n, d in zip(names, descriptions)]
         y_size = [self.size_classes.index(lbl) for lbl in size_labels]
         y_type = [self.type_classes.index(lbl) for lbl in type_labels]
         self.size_model.train(X, y_size)
         self.type_model.train(X, y_type)
 
-    def predict(self, name: str) -> Tuple[Tuple[str, float], Tuple[str, float]]:
-        vec = self.vocab.vectorize(name)
+    def predict(self, name: str, description: str) -> Tuple[Tuple[str, float], Tuple[str, float]]:
+        vec = self.vocab.vectorize(name, description)
         size_probs = self.size_model.predict_proba(vec)
         type_probs = self.type_model.predict_proba(vec)
         size_idx = max(range(len(size_probs)), key=lambda i: size_probs[i])

@@ -1,11 +1,11 @@
-name,size,type
-cola,500ml,bottle
-orange juice,1l,bottle
-mineral water,500ml,bottle
-potato chips,200g,bag
-chocolate cookies,300g,bag
-rice 5kg,5kg,bag
-smartphone,small,box
-laptop computer,medium,box
-television,large,box
-breakfast cereal,500g,box
+name,description,size,type
+cola,sweet carbonated beverage,500ml,bottle
+orange juice,citrus fruit drink,1l,bottle
+mineral water,pure spring water,500ml,bottle
+potato chips,crispy salted snack,200g,bag
+chocolate cookies,sweet baked biscuit,300g,bag
+rice 5kg,staple grain 5 kilogram package,5kg,bag
+smartphone,handheld electronic device,small,box
+laptop computer,portable personal computer,medium,box
+television,large flat screen tv,large,box
+breakfast cereal,morning meal grains,500g,box
