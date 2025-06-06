@@ -4,7 +4,9 @@ This directory contains a simple example of training a two-layer neural network
 from a small dataset of product names **and descriptions** to predict package
 size and type. The network is implemented from scratch without external machine
 learning libraries. The CSV file only provides names and descriptions; the
-training script assigns synthetic size/type labels for demonstration.
+training script now generates deterministic synthetic size/type labels from each
+product name using hashing so it can work with any dataset lacking these
+fields.
 
 ## Files
 
